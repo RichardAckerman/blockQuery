@@ -22,4 +22,4 @@ Vue.prototype.$axios = (data) => {
     }
 }
 
-Vue.prototype.$web3 = new Web3(new Web3.providers.HttpProvider('http://39.104.81.103:8101'))
+Vue.prototype.$web3 = new Web3(new Web3.providers.HttpProvider(HOST))

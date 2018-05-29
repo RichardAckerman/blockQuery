@@ -1,0 +1,254 @@
+@charset "utf-8";
+
+@import "reset";
+@import "common";
+
+#app {
+  height: 100%;
+  min-width: 100%;
+  //min-width: 1700px;
+  background: url("./assets/images/bg.jpg") no-repeat;
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  &:before {
+    content: '';
+    display: table;
+  }
+
+  .logoImg {
+    height: 30px;
+    width: 78px;
+    position: absolute;
+    top: 20px;
+    left: 90px;
+  }
+}
+
+.full-loading {
+  background: rgba(0, 0, 0, 0.6);
+  line-height: 20px;
+  .el-loading-spinner .path {
+    stroke: #B7D8FF;
+  }
+  p {
+    color: #B7D8FF !important;
+    font-size: 18px !important;
+  }
+}
+
+.trade-record-table th {
+  background-color: #221d44;
+}
+
+.el-table {
+  .cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.el-slider {
+  .el-slider__bar {
+    background-color: #e4e7ed;
+  }
+}
+
+input:focus,
+textarea:focus {
+  background-color: #5A558E;
+  box-shadow: 0px 0px 10px 0px rgba(190, 182, 255, 0.3);
+  border: solid 1px rgba(208, 202, 253, 0.54) !important;
+  outline: none;
+}
+
+input:read-only,
+textarea:read-only {
+  color: #97BFEB;
+}
+
+.el-select input:read-only {
+  color: #CEC8FF;
+}
+
+.popper__arrow {
+  border-bottom-color: #534B86 !important;
+}
+
+.popper__arrow:after {
+  border-bottom-color: #433E71 !important;
+}
+
+/*****  wallet style start    ****/
+
+.el-form label {
+  font-size: 18px;
+  color: #b6d7ff;
+}
+
+.el-wallet-style .el-wallet-input input,
+.el-wallet-style .el-wallet-input textarea {
+  font-size: 18px;
+  //background-color: #7a99be;
+  //color: #182f4a;
+}
+
+.transaction textarea {
+  height: 300px;
+}
+
+.finishe-address {
+  input {
+    height: 70px;
+    font-size: 24px;
+  }
+  label {
+    line-height: 70px;
+  }
+}
+
+//.el-wallet-style .el-wallet-input input:focus,
+//.el-wallet-style .el-wallet-input textarea:focus {
+//    background-color: #ADCEF7;
+//}
+
+#app .el-wallet-main-button {
+  width: 100%;
+  height: 64px;
+  background-color: #5837ff;
+  font-size: 26px;
+  font-weight: 100;
+  color: #ffffff;
+  border: none;
+  &:hover {
+    background-color: #6262FF;
+    color: #ffffff;
+  }
+  &:disabled {
+    background: #9386CE;
+  }
+}
+
+.el-wallet-style .el-wallet-input input:-moz-placeholder,
+.el-wallet-style .el-wallet-input textarea:-moz-placeholder {
+  color: $ph_color !important;
+}
+
+.el-wallet-style .el-wallet-input input:-ms-input-placeholder,
+.el-wallet-style .el-wallet-input textarea:-ms-input-placeholder {
+  color: $ph_color !important;
+}
+
+.el-wallet-style .el-wallet-input input::-webkit-input-placeholder,
+.el-wallet-style .el-wallet-input textarea::-webkit-input-placeholder {
+  color: $ph_color !important;
+}
+
+.create-wallet-dialog {
+  .el-dialog {
+    margin-top: 22vh !important;
+    padding: 0 45px;
+    border: solid 1px $outside_border_color;
+    background: rgba(32, 27, 67, 0.97) !important;
+    .el-dialog__header {
+      border-bottom: solid 1px $inner_border_color;
+      line-height: 50px;
+      span {
+        font-size: 28px;
+        color: #8abdec;
+      }
+    }
+  }
+}
+
+/*****  wallet style end    ****/
+
+/*   language   */
+.language {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+}
+
+.language-style {
+  input {
+    border: solid 1px #433e71;
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+/**     message     **/
+.el-message {
+  background-color: #303787;
+  border-color: #5873AD;
+  justify-content: center;
+  i {
+    font-size: 20px;
+  }
+  p {
+    font-size: 18px;
+  }
+}
+
+.el-message-box {
+  background-color: #1F1A42;
+  border: solid 1px #524c91;
+  button:first-child {
+    background: #372e65;
+    color: #fff;
+    border: 1px solid #372e65;
+    &:hover {
+      background: #5A50A2;
+      border: 1px solid #5A50A2;
+    }
+  }
+}
+
+//  分页的样式
+.el-pagination.is-background {
+  .btn-prev, .btn-next {
+    background: #342C67;
+  }
+  .el-pager {
+    li {
+      background: #342C67;
+    }
+  }
+}
+
+// 渐隐动画
+.fof-fade-enter {
+  opacity: 0;
+}
+
+.fof-fade-enter-active {
+  transition: opacity 0.7s ease-in-out;
+}
+
+.fof-fade-enter-to {
+  opacity: 1;
+}
+
+.fof-fade-leave {
+  opacity: 0;
+}
+
+.fof-fade-leave-active {
+  transition: opacity 0.7s ease-in-out;
+  transition-delay: -1s;
+}
+
+.fof-fade-leave-to {
+  opacity: 1;
+}
+
+/*   my-app   */
+.my-apps {
+  .el-input-group__append, .el-button {
+    border: 0;
+    background: #675DE5;
+    font-size: 16px;
+    color: #bbb3ef;
+  }
+}

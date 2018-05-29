@@ -1,36 +1,33 @@
 <template>
     <div class="container">
-        <el-container>
-            <el-header height="140px">
-                <el-row :gutter="20">
-                    <el-col :span="9">
-                        <div class="logo">汇尊区块链</div>
+        <div class="search-box" v-show="!showList">
+            <el-input v-model="blockNumber"></el-input>
+            <span class="detail-search-btn"></span>
+        </div>
+        <div class="content" v-show="showList">
+            <el-header>
+                <el-row>
+                    <el-col :span="9" :offset="6">
+                        <el-input v-model="blockNumber" placeholder="请输入区块编号"></el-input>
                     </el-col>
-                    <el-col :span="9">
-                        <el-input class="fr" v-model="blockNumber" placeholder="请输入区块编号">
-                            <el-button slot="append" icon="el-icon-search" @click="query()"></el-button>
-                        </el-input>
-                    </el-col>
-                    <el-col :span="6">
-                        <el-select class="fr" v-model="language" placeholder="请选择语言">
-                            <el-option label="中文" value="中文"></el-option>
-                            <el-option label="English" value="EN"></el-option>
-                        </el-select>
+                    <el-col :span="3">
+                        <el-button @click="query()">搜索</el-button>
                     </el-col>
                 </el-row>
             </el-header>
-            <el-main v-if="showList">
-                <el-table
-                        stripe
-                        height="600"
-                        :highlight-current-row="true"
-                        :data="blockData"
-                        style="width: 100%">
+            <div class="body-table">
+                <el-table height="100%"
+                          :data="blockData"
+                          style="color:#8490c5;font-size: 16px;background:#221d44;text-align:center;"
+                          :header-cell-style="headerCellStyle"
+                          :row-style="rowStyle"
+                          :cell-style="{'border-bottom':'none'}"
+                >
                     <el-table-column
                             prop="number"
                             label="区块编号">
                         <template slot-scope="scope">
-                            <a style="color: #f00"
+                            <a style="color: #B9B4E8"
                                :title="scope.row.txHash"
                                href="javascript:void(0)"
                                @click.prevent="query(scope.row.number)">
@@ -53,7 +50,8 @@
                     </el-table-column>
                     <el-table-column
                             prop="miner"
-                            label="矿工">
+                            label="矿工"
+                            min-width="300px">
                     </el-table-column>
                     <el-table-column
                             prop="gasUsed"
@@ -72,42 +70,33 @@
                             label="奖励">
                     </el-table-column>
                 </el-table>
-                <div class="block tc">
-                    <el-pagination
-                            @size-change="sizeChange"
-                            @current-change="currentChange"
-                            :current-page="currentPage"
-                            :page-size="times"
-                            layout="total, sizes, prev, pager, next, jumper"
-                            :total="total">
-                    </el-pagination>
+            </div>
+            <div class="tc">
+                <el-pagination
+                        background
+                        @size-change="sizeChange"
+                        @current-change="currentChange"
+                        :current-page="currentPage"
+                        :page-size="times"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total">
+                </el-pagination>
+            </div>
+        </div>
+        <div class="content" v-show="!showList">
+            <div class="body-detail">
+                <div class="detail-head">
+                    <span>区块信息</span>
+                    <el-button size="mini" @click="backList">返回列表</el-button>
                 </div>
-            </el-main>
-            <el-main v-else>
-                <div class="back tr"><a href="javascript:void(0)" @click="backList">显示区块列表 >></a></div>
                 <div class="tx-list">
-                    <p class="title">Block Information</p>
-                    <el-row
-                            :gutter="20"
-                            v-for="(value,key) in blockData[0]"
-                            :key="key">
-                        <el-col :span="6" class="key">
-                            <div>
-                                {{ key }}
-                            </div>
-                        </el-col>
-                        <el-col :span="18" class="value">
-                            <div>
-                                {{ value }}
-                            </div>
-                        </el-col>
-                    </el-row>
+                    <div class="row" v-for="(value,key) in blockData[0]" :key="key">
+                        <div class="key">{{ key }}</div>
+                        <div class="value">{{ value }}</div>
+                    </div>
                 </div>
-            </el-main>
-            <!--<el-footer>-->
-            <!--深圳市汇尊区块链技术有限公司-->
-            <!--</el-footer>-->
-        </el-container>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -204,7 +193,7 @@
              * 查询
              */
             query(blockNum) {
-                if(blockNum){
+                if (blockNum) {
                     this.times = 1
                     this.showList = false
                     this.blockData.length = 0
@@ -260,6 +249,17 @@
                     }
                 }, 1)
             },
+            headerCellStyle({row, rowIndex}) {
+                return 'background:#342C67;border-bottom:0;font-size: 20px;color: #d3ceff;height:70px;text-align:center;'
+            },
+            rowStyle({row, rowIndex}) {
+                if (rowIndex & 1) {
+                    return 'background:#342C67;'
+                } else {
+                    return 'background:#221d44;'
+                }
+            }
+
         },
         mounted() {
             this.getBlockList(this.lastBlockNumber)
@@ -269,60 +269,141 @@
 </script>
 
 <style lang="scss" type="text/scss" scoped>
-    .el-header {
-        padding: 0 20px;
-        .logo {
-            font-family: '\534E\6587\65B0\9B4F';
-            font-size: 70px;
-            color: #4DAD95;
-            padding-top: 20px;
-        }
-        .el-input {
-            margin-top: 35px;
-        }
-        .el-select {
-            margin-top: 35px;
-        }
-    }
+    .container {
+        height: calc(100% - 70px);
+        margin-top: 70px;
+        padding: 20px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        background: rgba(25, 21, 46, 0.7);
+        position: relative;
 
-    .el-main {
-        .back {
-            height: 50px;
-            line-height: 50px;
-            a {
-                color: #f00;
+        .search-box {
+            width: 400px;
+            height: 40px;
+            position: absolute;
+            top: -55px;
+            right: 150px;
+            .el-input {
+                width: 356px;
             }
-        }
-        .tx-list {
-            border: 1px solid #4DAD95;
-            border-radius: 10px;
-            padding: 20px;
-            .title {
-                width: 100%;
-                height: 50px;
-                line-height: 50px;
-                border-radius: 10px 10px 0 0;
-                background: #D9EDF7;
-                margin: -20px 0 10px -20px;
-                padding: 0 20px;
-                font-size: 20px;
-            }
-            .el-row {
-                .key, .value {
-                    height: 30px;
-                    line-height: 30px;
+            .detail-search-btn {
+                position: absolute;
+                top: 0;
+                right: 0;
+                display: inline-block;
+                width: 44px;
+                height: 44px;
+                cursor: pointer;
+                background: url("../assets/images/icon_seach.png") 13px 13px no-repeat;
+                background-color: #403A6D;
+                &:hover {
+                    background: url("../assets/images/icon_seach_active.png") 13px 13px no-repeat;
+                    background-color: #5D5898;
                 }
             }
         }
-        .el-pagination {
-            margin: 50px 0;
-        }
-    }
+        .content {
+            width: 100%;
+            height: 100%;
+            padding: 0 4%;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            overflow-y: auto;
 
-    .el-footer {
-        text-align: center;
-        background: #000;
-        line-height: 60px;
-        color: #fff;
+            .el-header {
+                .el-input {
+                    height: 50px;
+                }
+                .el-button {
+                    margin-left: 10px;
+                    padding: 0 50px;
+                    line-height: 44px;
+                    background-color: #403a6d;
+                    border: 0;
+                    font-size: 20px;
+                    color: #cec8ff;
+                    &:hover {
+                        background-color: #5D5898;
+                    }
+                }
+            }
+            .body-table {
+                height: calc(100% - 120px);
+                min-height: 200px;
+                overflow-y: auto;
+            }
+            .el-pagination {
+                margin-top: 20px;
+            }
+
+            .body-detail {
+                width: 1000px;
+                height: 100%;
+                margin: 0 auto;
+                .detail-head {
+                    text-align: center;
+                    font-size: 18px;
+                    color: #d3ceff;
+                    line-height: 50px;
+                    position: relative;
+                    .el-button {
+                        position: absolute;
+                        top: 10px;
+                        right: 0;
+                        border: none;
+                        float: right;
+                        background-color: #403a6d;
+                        color: #cec8ff;
+                        &:hover {
+                            background-color: #5D5898;
+                        }
+                    }
+                }
+                .tx-list {
+                    max-height: calc(100% - 60px);
+                    min-height: 300px;
+                    overflow-y: auto;
+                    background-color: rgba(32, 28, 68, 0.6);
+                    box-shadow: 0px 18px 43px 0px rgba(25, 21, 46, 0.07);
+                    border-radius: 2px;
+                    border: solid 1px #322d5d;
+                    .row {
+                        line-height: 38px;
+                        position: relative;
+                        &:after {
+                            content: '';
+                            display: table;
+                            clear: both;
+                        }
+                        .key {
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            width: 200px;
+                            font-size: 16px;
+                            color: #cec8ff;
+                            text-align: right;
+                            padding-right: 40px;
+                            background-color: rgba(58, 52, 106, 0.1);
+                            box-shadow: 1px 0px 0px 0px rgba(57, 53, 102, 0.35);
+                        }
+                        .value {
+                            float: right;
+                            width: calc(100% - 280px);
+                            padding-left: 40px;
+                            font-size: 14px;
+                            color: #8490c5;
+                        }
+                    }
+                }
+            }
+        }
+
+        .el-table::before {
+            height: 0; //勿删
+        }
     }
 </style>
