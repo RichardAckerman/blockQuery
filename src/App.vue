@@ -13,6 +13,9 @@
         name: 'App',
         components: {
             language
+        },
+        mounted() {
+            // console.log(this.$web3);
         }
     }
 </script>

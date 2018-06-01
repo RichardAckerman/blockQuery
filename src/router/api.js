@@ -22,4 +22,4 @@ Vue.prototype.$axios = (data) => {
     }
 }
 
-Vue.prototype.$web3 = new Web3(new Web3.providers.HttpProvider(HOST))
+Vue.prototype.$web3 = new Web3(Web3.givenProvider || HOST);
