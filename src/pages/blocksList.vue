@@ -2,7 +2,7 @@
     <div class="container">
         <div class="search-box" v-show="!showList">
             <el-input v-model="blockNumber"></el-input>
-            <span class="detail-search-btn"></span>
+            <span class="detail-search-btn" @click="query()"></span>
         </div>
         <div class="content" v-show="showList">
             <el-header>
@@ -118,7 +118,7 @@
         },
         computed: {
             lastBlockNumber() {
-                return this.$web3.eth.blockNumber
+                return this.$web3.eth.getBlockNumber()
             }
         },
         methods: {
@@ -127,49 +127,41 @@
              * @param bNum 区块号
              */
             getBlockList(bNum) {
-                let param = {
-                    method: 'eth_getBlockByNumber',
-                    params: [this.$web3.toHex(bNum), true],
-                    id: '1'
-                }
-                this.$axios(param)
-                    .then((res) => {
-                        if (res.data.result) {
-                            res.data.result.number = this.toDec(res.data.result.number)
-                            res.data.result.timestamp = this.dateFormate(res.data.result.timestamp)
-                            res.data.result.gasUsed = this.toDec(res.data.result.gasUsed)
-                            res.data.result.gasLimit = this.toDec(res.data.result.gasLimit)
-                            delete res.data.result.logsBloom
-                            this.blockData.push(res.data.result)
-                            this.currentTimes++
-                            bNum--
-                            if (bNum < 0) {
-                                this.flag = true
-                            } else if (this.currentTimes < this.times) {
-                                this.getBlockList(bNum)
-                                this.flag = false
-                            } else {
-                                this.flag = true
-                            }
-                        } else {
-                            this.$message({
-                                showClose: true,
-                                message: '未查到任何信息！',
-                                type: 'error'
-                            })
-                        }
-                    })
-                    .catch((err) => {
+                this.$web3.eth.getBlock(bNum, true, (err, obj) => {
+                    if (err) {
                         this.$message.error(err)
-                    })
+                        return
+                    }
+                    if (obj) {
+                        obj.timestamp = this.dateFormate(obj.timestamp)
+                        delete obj.logsBloom
+                        this.blockData.push(obj)
+
+                        this.currentTimes++
+                        bNum--
+                        if (bNum < 0) {
+                            this.flag = true
+                        } else if (this.currentTimes < this.times) {
+                            this.getBlockList(bNum)
+                            this.flag = false
+                        } else {
+                            this.flag = true
+                        }
+                    } else {
+                        this.$message({
+                            showClose: true,
+                            message: '未查到任何信息！',
+                            type: 'error'
+                        })
+                    }
+                })
             },
             /**
              * 时间格式化
              * @param time
              * @returns {string}
              */
-            dateFormate(time) {
-                let result = this.$web3.toDecimal(time)
+            dateFormate(result) {
                 if (String(result).length === 10) {
                     result *= 1000
                 }
@@ -182,12 +174,6 @@
                     result = result + ' secs'
                 }
                 return result + ' ago'
-            },
-            /**
-             * 转十进制
-             */
-            toDec(hex) {
-                return this.$web3.toDecimal(hex)
             },
             /**
              * 查询
@@ -210,7 +196,6 @@
                         return
                     }
                     this.times = 1
-                    this.showList = false
                     this.blockData.length = 0
                     this.currentTimes = 0
                     this.getBlockList(this.blockNumber)
@@ -224,7 +209,10 @@
                 this.currentTimes = 0
                 this.showList = true
                 this.blockData.length = 0
-                this.getBlockList(this.lastBlockNumber)
+                this.blockNumber = ''
+                this.lastBlockNumber.then((num) => {
+                    this.getBlockList(num)
+                })
             },
             /**
              * pageSize 改变时会触发
@@ -233,7 +221,9 @@
                 this.times = pageSize
                 this.currentTimes = 0
                 this.blockData.length = 0
-                this.getBlockList(this.lastBlockNumber)
+                this.lastBlockNumber.then((num) => {
+                    this.getBlockList(num)
+                })
             },
             /**
              * currentPage 改变时会触发
@@ -244,8 +234,10 @@
                         clearInterval(timer)
                         this.currentTimes = 0
                         this.blockData.length = 0
-                        let bNum = this.lastBlockNumber - (this.times * (index - 1))
-                        this.getBlockList(bNum)
+                        this.lastBlockNumber.then((num) => {
+                            let bNum = num - (this.times * (index - 1))
+                            this.getBlockList(bNum)
+                        })
                     }
                 }, 1)
             },
@@ -262,8 +254,10 @@
 
         },
         mounted() {
-            this.getBlockList(this.lastBlockNumber)
-            this.total = this.lastBlockNumber
+            this.lastBlockNumber.then((num) => {
+                this.getBlockList(num)
+                this.total = num
+            })
         }
     }
 </script>
