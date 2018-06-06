@@ -125,8 +125,9 @@
             /**
              *  传入区块号进行查询
              * @param bNum 区块号
+             * @param times 区块号
              */
-            getBlockList(bNum) {
+            getBlockList(bNum, times) {
                 this.$web3.eth.getBlock(bNum, true, (err, obj) => {
                     if (err) {
                         this.$message.error(err)
@@ -136,7 +137,9 @@
                         obj.timestamp = this.dateFormate(obj.timestamp)
                         delete obj.logsBloom
                         this.blockData.push(obj)
-
+                        if (times === 1) {
+                            return
+                        }
                         this.currentTimes++
                         bNum--
                         if (bNum < 0) {
@@ -158,14 +161,16 @@
             },
             /**
              * 时间格式化
-             * @param time
+             * @param result
              * @returns {string}
              */
             dateFormate(result) {
                 if (String(result).length === 10) {
                     result *= 1000
                 }
-                result = (Date.parse(new Date()) - result) / 1000
+                if (result !== 0) {
+                    result = (Date.parse(new Date()) - result) / 1000
+                }
                 if (result > (60 * 60 - 1)) {
                     result = Math.floor(result / 60 / 60) + ' hr ' + (Math.floor(result / 60)) % 60 + ' mins'
                 } else if (result > 59) {
@@ -179,12 +184,15 @@
              * 查询
              */
             query(blockNum) {
+                if(!this.flag){
+                    this.$message.error('数据请等待数据加载完成！')
+                    return
+                }
                 if (blockNum) {
-                    this.times = 1
                     this.showList = false
                     this.blockData.length = 0
                     this.currentTimes = 0
-                    this.getBlockList(blockNum)
+                    this.getBlockList(blockNum, 1)
                 } else {
                     let reg = /^[0-9]*$/
                     if (this.blockNumber.trim() === '' || !reg.test(this.blockNumber)) {
@@ -195,17 +203,16 @@
                         })
                         return
                     }
-                    this.times = 1
                     this.blockData.length = 0
                     this.currentTimes = 0
-                    this.getBlockList(this.blockNumber)
+                    this.getBlockList(this.blockNumber, 1)
                 }
             },
             /**
              * 返回表格
              */
             backList() {
-                this.times = 20
+                this.times = 20 //todo
                 this.currentTimes = 0
                 this.showList = true
                 this.blockData.length = 0
@@ -229,6 +236,7 @@
              * currentPage 改变时会触发
              */
             currentChange(index) {
+                this.blockNumber = ''
                 let timer = setInterval(() => {
                     if (this.flag) {
                         clearInterval(timer)
