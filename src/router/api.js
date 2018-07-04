@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import axios from 'axios'
 
 
-const HOST = 'http://39.104.81.103:8101'
+const HOST = 'ws://39.104.81.103:8561'
 
 axios.defaults.baseURL = HOST  // 设置请求地址，后面的接口都将基于这个基本请求地址
 
@@ -22,4 +22,4 @@ Vue.prototype.$axios = (data) => {
     }
 }
 
-Vue.prototype.$web3 = new Web3(Web3.givenProvider || HOST);
+Vue.prototype.$web3 = new Web3(HOST);

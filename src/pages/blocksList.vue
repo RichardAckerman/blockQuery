@@ -1,14 +1,14 @@
 <template>
     <div class="container">
         <div class="search-box" v-show="!showList">
-            <el-input v-model="blockNumber"></el-input>
+            <el-input v-model="blockNumber" placeholder="请输入区块高度/区块hash/交易hash"></el-input>
             <span class="detail-search-btn" @click="query()"></span>
         </div>
         <div class="content" v-show="showList">
             <el-header>
                 <el-row>
                     <el-col :span="9" :offset="6">
-                        <el-input v-model="blockNumber" placeholder="请输入区块编号"></el-input>
+                        <el-input v-model="blockNumber" placeholder="请输入区块高度/区块hash/交易hash"></el-input>
                     </el-col>
                     <el-col :span="3">
                         <el-button @click="query()">搜索</el-button>
@@ -25,10 +25,10 @@
                 >
                     <el-table-column
                             prop="number"
-                            label="区块编号">
+                            label="区块高度">
                         <template slot-scope="scope">
                             <a style="color: #B9B4E8"
-                               :title="scope.row.txHash"
+                               :title="scope.row.number"
                                href="javascript:void(0)"
                                @click.prevent="query(scope.row.number)">
                                 {{ scope.row.number }}
@@ -36,14 +36,26 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                            prop="timestamp"
-                            width="180"
-                            label="存在时间">
+                            prop="hash"
+                            width="650"
+                            label="区块hash">
+                        <template slot-scope="scope">
+                            <a style="color: #B9B4E8"
+                               :title="scope.row.hash"
+                               href="javascript:void(0)"
+                               @click.prevent="query(scope.row.hash)">
+                                {{ scope.row.hash }}
+                            </a>
+                        </template>
                     </el-table-column>
                     <el-table-column
-                            prop="txn"
-                            label="txn">
+                            prop="timestamp"
+                            label="存在时间">
                     </el-table-column>
+                    <!--<el-table-column-->
+                    <!--prop="txn"-->
+                    <!--label="txn">-->
+                    <!--</el-table-column>-->
                     <el-table-column
                             prop="uncles.length"
                             label="叔块">
@@ -61,14 +73,10 @@
                             prop="gasLimit"
                             label="佣金上限">
                     </el-table-column>
-                    <el-table-column
-                            prop="Avg.GasPrice"
-                            label="平均佣金">
-                    </el-table-column>
-                    <el-table-column
-                            prop="Reward"
-                            label="奖励">
-                    </el-table-column>
+                    <!--<el-table-column-->
+                    <!--prop="Reward"-->
+                    <!--label="奖励">-->
+                    <!--</el-table-column>-->
                 </el-table>
             </div>
             <div class="tc">
@@ -86,13 +94,13 @@
         <div class="content" v-show="!showList">
             <div class="body-detail">
                 <div class="detail-head">
-                    <span>区块信息</span>
+                    <span>{{ title }}</span>
                     <el-button size="mini" @click="backList">返回列表</el-button>
                 </div>
                 <div class="tx-list">
                     <div class="row" v-for="(value,key) in blockData[0]" :key="key">
                         <div class="key">{{ key }}</div>
-                        <div class="value">{{ value }}</div>
+                        <div class="value">{{ value == '' ? " " : value }}</div>
                     </div>
                 </div>
             </div>
@@ -105,6 +113,7 @@
         name: "blocks-list",
         data() {
             return {
+                title:'区块信息',
                 language: '', // 语言
                 blockData: [], // 表格数据
                 currentTimes: 0, //
@@ -130,14 +139,23 @@
             getBlockList(bNum, times) {
                 this.$web3.eth.getBlock(bNum, true, (err, obj) => {
                     if (err) {
-                        this.$message.error(err)
+                        this.$message.error(String(err))
                         return
                     }
                     if (obj) {
                         obj.timestamp = this.dateFormate(obj.timestamp)
                         delete obj.logsBloom
+                        // this.$web3.eth.getBlockTransactionCount(this.blockNumber, (error,result)=>{
+                        //     if (error) {
+                        //         this.$message.error(error)
+                        //         return
+                        //     }
+                        // obj.txn = result
                         this.blockData.push(obj)
                         if (times === 1) {
+                            if (this.blockData.length === 0) {
+                                this.$message.error('未查到相应数据')
+                            }
                             return
                         }
                         this.currentTimes++
@@ -150,12 +168,25 @@
                         } else {
                             this.flag = true
                         }
+                        // })
                     } else {
-                        this.$message({
-                            showClose: true,
-                            message: '未查到任何信息！',
-                            type: 'error'
-                        })
+                        this.$web3.eth
+                            .getTransaction(this.blockNumber.trim())
+                            .then((result) => {
+                                if (result) {
+                                    this.showList = false
+                                    this.blockData.length = 0
+                                    this.currentTimes = 0
+                                    this.blockData.push(result)
+                                    this.title = '交易信息'
+                                } else {
+                                    this.$message({
+                                        showClose: true,
+                                        message: '未查到任何信息！',
+                                        type: 'error'
+                                    })
+                                }
+                            })
                     }
                 })
             },
@@ -184,28 +215,32 @@
              * 查询
              */
             query(blockNum) {
-                if(!this.flag){
-                    this.$message.error('数据请等待数据加载完成！')
-                    return
-                }
                 if (blockNum) {
+                    if (!this.flag) {
+                        this.$message.error('数据请等待数据加载完成！')
+                        return
+                    }
+                    this.title = '区块信息'
                     this.showList = false
                     this.blockData.length = 0
                     this.currentTimes = 0
                     this.getBlockList(blockNum, 1)
                 } else {
-                    let reg = /^[0-9]*$/
-                    if (this.blockNumber.trim() === '' || !reg.test(this.blockNumber)) {
+                    if (this.blockNumber.trim() === '') {
                         this.$message({
                             showClose: true,
-                            message: '请输入正确的区块编号！',
+                            message: '请输入正确的区块编号或hash！',
                             type: 'error'
                         })
                         return
                     }
+                    if (isNaN(Number(this.blockNumber))) {
+                        this.$message.error('查询参数格式不对！')
+                        return
+                    }
                     this.blockData.length = 0
                     this.currentTimes = 0
-                    this.getBlockList(this.blockNumber, 1)
+                    this.getBlockList(this.blockNumber.trim(), 1)
                 }
             },
             /**
@@ -375,6 +410,7 @@
                     .row {
                         line-height: 38px;
                         position: relative;
+                        min-height: 38px;
                         &:after {
                             content: '';
                             display: table;
