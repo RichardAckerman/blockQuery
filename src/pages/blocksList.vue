@@ -50,12 +50,9 @@
                     </el-table-column>
                     <el-table-column
                             prop="timestamp"
-                            label="存在时间">
+                            label="出块时间"
+                            min-width="200">
                     </el-table-column>
-                    <!--<el-table-column-->
-                    <!--prop="txn"-->
-                    <!--label="txn">-->
-                    <!--</el-table-column>-->
                     <el-table-column
                             prop="uncles.length"
                             label="叔块">
@@ -73,10 +70,6 @@
                             prop="gasLimit"
                             label="佣金上限">
                     </el-table-column>
-                    <!--<el-table-column-->
-                    <!--prop="Reward"-->
-                    <!--label="奖励">-->
-                    <!--</el-table-column>-->
                 </el-table>
             </div>
             <div class="tc">
@@ -113,7 +106,7 @@
         name: "blocks-list",
         data() {
             return {
-                title:'区块信息',
+                title: '区块信息',
                 language: '', // 语言
                 blockData: [], // 表格数据
                 currentTimes: 0, //
@@ -199,17 +192,26 @@
                 if (String(result).length === 10) {
                     result *= 1000
                 }
-                if (result !== 0) {
-                    result = (Date.parse(new Date()) - result) / 1000
-                }
-                if (result > (60 * 60 - 1)) {
-                    result = Math.floor(result / 60 / 60) + ' hr ' + (Math.floor(result / 60)) % 60 + ' mins'
-                } else if (result > 59) {
-                    result = (result / 60).toFixed(0) + ' mins'
-                } else {
-                    result = result + ' secs'
-                }
-                return result + ' ago'
+                let date = new Date(result * 1)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                let Y = date.getFullYear() + '-'
+                let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+                let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate())+ ' '
+                let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+                let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+                let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
+                console.log(Y + M + D + h + m + s)
+                return Y + M + D + h + m + s
+                // if (result !== 0) {
+                //     result = (Date.parse(new Date()) - result) / 1000
+                // }
+                // if (result > (60 * 60 - 1)) {
+                //     result = Math.floor(result / 60 / 60) + ' hr ' + (Math.floor(result / 60)) % 60 + ' mins'
+                // } else if (result > 59) {
+                //     result = (result / 60).toFixed(0) + ' mins'
+                // } else {
+                //     result = result + ' secs'
+                // }
+                // return result + ' ago'
             },
             /**
              * 查询
